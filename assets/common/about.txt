@@ -1,0 +1,16 @@
+<b>Mediatek NVTool</b>
+<b></#></b>
+This is a backup & restore script based on WizardUI. This tool can backup current meta to sdcard and can restore previous meta backup from sdcard.
+<b></#></b>
+<b></#></b>
+<b><#selectbg_g>Created By</#></b>
+<*>Str33t10</*>
+<b></#></b>
+<b><#selectbg_g>Scripted By</#></b>
+<*>MykolaS10</*>
+<b></#></b>
+<b></#></b><b><#selectbg_g>Tested By</#></b>
+<*>S10</*>
+<b></#></b>
+Our official blog:
+<#00f>http://www.blog-android.com<#00f></#>

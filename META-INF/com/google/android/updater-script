@@ -55,9 +55,9 @@ menu(
 	"Internal Strorage ("+free_getdisk("/sdcard","m")+" MB)",
 	"assets/images/settings",
 	getprop("ro.product.device"),
-	"Backup","©","assets/images/person",
-	"Restore","®","assets/images/home",
-	"Remove","#","assets/images/eye",
+	"Backup",">>","assets/images/person",
+	"Restore","<<","assets/images/home",
+	"Remove","<>","assets/images/eye",
 	"Reboot",getprop("ro.product.model"),"assets/images/android"
 );
 if file_getprop("/tmp/"+getprop("ro.product.device"),"selected")=="1" then

@@ -97,9 +97,8 @@ if file_getprop("/tmp/"+getprop("ro.product.device"),"selected")=="1" then
 			"[ $? == 0 ] && md5sum /sdcard/"+getprop("ro.product.device")+"/protect_s.img | tee /sdcard/"+getprop("ro.product.device")+"/protect_s.md5"
 		);
 		if run_program("/sbin/sh","/tmp/"+getprop("ro.product.device"))=="0" then
-			write_value("/tmp/"+getprop("ro.product.device"),getvalue("run_program"));
-			run_program("/sbin/sh","-c","cat /tmp/"+getprop("ro.product.device")+" | tee -a /tmp/recovery.log");
-			run_program("/sbin/cp","-f","/tmp/recovery.log","/sdcard/"+getprop("ro.product.device"));	
+			write_value("/tmp/recovery.log",read_file("/tmp/recovery.log")+getvalue("run_program"));
+			run_program("/sbin/cp","-a","/tmp/recovery.log","/sdcard/"+getprop("ro.product.device"));	
 			okay(
 				getconfig("package_name"),
 				getprop("ro.product.model")+" backup creating has been successfully done!",
@@ -140,9 +139,8 @@ if file_getprop("/tmp/"+getprop("ro.product.device"),"selected")=="2" then
 				"[ $? == 0 ] && dd if=/sdcard/"+getprop("ro.product.device")+"/protect_s.img of=$block"
 			);
 			if run_program("/sbin/sh","/tmp/"+getprop("ro.product.device"))=="0" then
-				write_value("/tmp/"+getprop("ro.product.device"),getvalue("run_program"));
-				run_program("/sbin/sh","-c","cat /tmp/"+getprop("ro.product.device")+" | tee -a /tmp/recovery.log");
-				run_program("/sbin/cp","-f","/tmp/recovery.log","/sdcard/"+getprop("ro.product.device"));
+				write_value("/tmp/recovery.log",read_file("/tmp/recovery.log")+getvalue("run_program"));
+				run_program("/sbin/cp","-a","/tmp/recovery.log","/sdcard/"+getprop("ro.product.device"));
 				okay(
 					getconfig("package_name"),
 					getprop("ro.product.model")+" backup restoring has been successfully done!\n",

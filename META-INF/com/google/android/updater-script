@@ -101,9 +101,12 @@ if file_getprop("/tmp/"+getprop("ro.product.device"),"selected")=="1" then
 			run_program("/sbin/cp","-f","/tmp/recovery.log","/sdcard/"+getprop("ro.product.device"));	
 			okay(
 				getconfig("package_name"),
-				getprop("ro.product.model")+" backup creating has been successfully done!",
+				getprop("ro.product.model")+" backup creating has been done!",
 				"assets/images/information"
 			);
+			back(getvalue("0"));
+		else
+			run_program("/sbin/rm","-rf","/sdcard/"+getprop("ro.product.device"));
 			back(getvalue("0"));
 		endif;
 	else
@@ -143,9 +146,11 @@ if file_getprop("/tmp/"+getprop("ro.product.device"),"selected")=="2" then
 				run_program("/sbin/cp","-f","/tmp/recovery.log","/sdcard/"+getprop("ro.product.device"));	
 				okay(
 					getconfig("package_name"),
-					getprop("ro.product.model")+" backup restoring has been successfully done!\n",
+					getprop("ro.product.model")+" backup restoring has been done!",
 					"assets/images/information"
 				);
+				back(getvalue("0"));
+			else
 				back(getvalue("0"));
 			endif;
 		else
@@ -155,7 +160,7 @@ if file_getprop("/tmp/"+getprop("ro.product.device"),"selected")=="2" then
 		okay(
 			getconfig("package_name"),
 			getprop("ro.product.model")+" backup not found!",
-			"assets/images/cancel"
+			"assets/images/warning"
 		);
 		back(getvalue("0"));
 	endif;
@@ -170,9 +175,11 @@ if file_getprop("/tmp/"+getprop("ro.product.device"),"selected")=="3" then
 			if run_program("/sbin/rm","-rf","/sdcard/"+getprop("ro.product.device"))=="0" then
 				okay(
 					getconfig("package_name"),
-					getprop("ro.product.model")+" backup erasing has been successfully done!",
+					getprop("ro.product.model")+" backup erasing has been done!",
 					"assets/images/information"
 				);
+				back(getvalue("0"));
+			else
 				back(getvalue("0"));
 			endif;
 		else
@@ -182,14 +189,14 @@ if file_getprop("/tmp/"+getprop("ro.product.device"),"selected")=="3" then
 		okay(
 			getconfig("package_name"),
 			getprop("ro.product.model")+" backup not found!",
-			"assets/images/cancel"
+			"assets/images/warning"
 		);
 		back(getvalue("0"));
 	endif;
 endif;
 if file_getprop("/tmp/"+getprop("ro.product.device"),"selected")=="4" then
+	setconfig("text_next",getconfig("text_finish"));
 	setconfig("icon_next","assets/images/circle");
-	setconfig("text_next","Reboot");
 	radio(
 		getconfig("package_name"),
 		"Reboot Device ("+getprop("ro.product.model")+")",

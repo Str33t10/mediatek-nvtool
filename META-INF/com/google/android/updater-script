@@ -1,0 +1,229 @@
+### LICENSE:
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#      http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+###
+setconfig("package_name","Mediatek NVTool");
+setconfig("package_build","1.0.1-2026");
+setconfig("package_date","2023-07-04");
+setconfig("package_author","Str33t10");
+
+###
+#
+#--- Generic Script
+#
+###
+font(0,"assets/fonts/Roboto-Regular.ttf",12);
+font(1,"assets/fonts/Roboto-Medium.ttf",18);
+font(2,"assets/fonts/Roboto-Light.ttf",24);
+splash(1,"assets/images/cursor",750);
+eula(
+	getconfig("package_name"),
+	"License Information (EULA)",
+	"assets/images/print",
+ 	package_read_file("assets/common/license.txt"),
+	"Agree the terms of services",
+	"You need to agree the end-user license agreement!"
+);
+menu(
+	getconfig("package_name"),
+	"Internal Strorage ("+free_getdisk("/sdcard","m")+" MB)",
+	"assets/images/settings",
+	getprop("ro.product.device"),
+	"Backup",getprop("ro.product.model"),"assets/images/person",
+	"Restore","Backup","assets/images/home",
+	"Remove","Backup","assets/images/cancel",
+	"Reboot",getprop("ro.product.model"),"assets/images/android"
+);
+ifelse(is_mounted("/nvdata"),unmount("/nvdata"));
+ifelse(is_mounted("/nvcfg"),unmount("/nvcfg"));
+ifelse(is_mounted("/protect_f"),unmount("/protect_f"));
+ifelse(is_mounted("/protect_s"),unmount("/protect_s"));
+write_value(
+	"/tmp/"+getprop("ro.bootmode")+".sh",
+	"case $1 in\n"+
+		"backup){\n"+
+			"[ ! -d /sdcard/"+getprop("ro.product.device")+" ] && mkdir -p /sdcard/"+getprop("ro.product.device")+"\n"+
+			"block=`cat /etc/recovery.fstab | cut -d '#' -f 1 | grep /proinfo | grep -o '/dev/[^ ]*' | head -1`\n"+
+			"[ -n $block ] && dd if=$block of=/sdcard/"+getprop("ro.product.device")+"/proinfo.bin\n"+
+			"[ $? == 0 ] && md5sum /sdcard/"+getprop("ro.product.device")+"/proinfo.bin | tee /sdcard/"+getprop("ro.product.device")+"/proinfo.md5\n"+
+			"block=`cat /etc/recovery.fstab | cut -d '#' -f 1 | grep /protect_f | grep -o '/dev/[^ ]*' | head -1`\n"+
+			"[ -n $block ] && dd if=$block of=/sdcard/"+getprop("ro.product.device")+"/protect_f.img\n"+
+			"[ $? == 0 ] && md5sum /sdcard/"+getprop("ro.product.device")+"/protect_f.img | tee /sdcard/"+getprop("ro.product.device")+"/protect_f.md5\n"+
+			"block=`cat /etc/recovery.fstab | cut -d '#' -f 1 | grep /protect_s | grep -o '/dev/[^ ]*' | head -1`\n"+
+			"[ -n $block ] && dd if=$block of=/sdcard/"+getprop("ro.product.device")+"/protect_s.img\n"+
+			"[ $? == 0 ] && md5sum /sdcard/"+getprop("ro.product.device")+"/protect_s.img | tee /sdcard/"+getprop("ro.product.device")+"/protect_s.md5\n"+
+			"block=`cat /etc/recovery.fstab | cut -d '#' -f 1 | grep /nvcfg | grep -o '/dev/[^ ]*' | head -1`\n"+
+			"[ -n $block ] && dd if=$block of=/sdcard/"+getprop("ro.product.device")+"/nvcfg.img\n"+
+			"[ $? == 0 ] && md5sum /sdcard/"+getprop("ro.product.device")+"/nvcfg.img | tee /sdcard/"+getprop("ro.product.device")+"/nvcfg.md5\n"+
+			"block=`cat /etc/recovery.fstab | cut -d '#' -f 1 | grep /nvdata | grep -o '/dev/[^ ]*' | head -1`\n"+
+			"[ -n $block ] && dd if=$block of=/sdcard/"+getprop("ro.product.device")+"/nvdata.img\n"+
+			"[ $? == 0 ] && md5sum /sdcard/"+getprop("ro.product.device")+"/nvdata.img | tee /sdcard/"+getprop("ro.product.device")+"/nvdata.md5\n"+
+			"block=`cat /etc/recovery.fstab | cut -d '#' -f 1 | grep /nvram | grep -o '/dev/[^ ]*' | head -1`\n"+
+			"[ -n $block ] && dd if=$block of=/sdcard/"+getprop("ro.product.device")+"/nvram.bin\n"+
+			"[ $? == 0 ] && md5sum /sdcard/"+getprop("ro.product.device")+"/nvram.bin | tee /sdcard/"+getprop("ro.product.device")+"/nvram.md5\n"+
+		"};;\n"+
+		"restore){\n"+
+			"block=`cat /etc/recovery.fstab | cut -d '#' -f 1 | grep /proinfo | grep -o '/dev/[^ ]*' | head -1`\n"+
+			"[ -n $block ] && md5sum -c /sdcard/"+getprop("ro.product.device")+"/proinfo.md5\n"+
+			"[ $? == 0 ] && dd if=/sdcard/"+getprop("ro.product.device")+"/proinfo.bin of=$block\n"+
+			"block=`cat /etc/recovery.fstab | cut -d '#' -f 1 | grep /protect_f | grep -o '/dev/[^ ]*' | head -1`\n"+
+			"[ -n $block ] && md5sum -c /sdcard/"+getprop("ro.product.device")+"/protect_f.md5\n"+
+			"[ $? == 0 ] && dd if=/sdcard/"+getprop("ro.product.device")+"/protect_f.img of=$block\n"+
+			"block=`cat /etc/recovery.fstab | cut -d '#' -f 1 | grep /protect_s | grep -o '/dev/[^ ]*' | head -1`\n"+
+			"[ -n $block ] && md5sum -c /sdcard/"+getprop("ro.product.device")+"/protect_s.md5\n"+
+			"[ $? == 0 ] && dd if=/sdcard/"+getprop("ro.product.device")+"/protect_s.img of=$block\n"+
+			"block=`cat /etc/recovery.fstab | cut -d '#' -f 1 | grep /nvcfg | grep -o '/dev/[^ ]*' | head -1`\n"+
+			"[ -n $block ] && md5sum -c /sdcard/"+getprop("ro.product.device")+"/nvcfg.md5\n"+
+			"[ $? == 0 ] && dd if=/sdcard/"+getprop("ro.product.device")+"/nvcfg.img of=$block\n"+
+			"block=`cat /etc/recovery.fstab | cut -d '#' -f 1 | grep /nvdata | grep -o '/dev/[^ ]*' | head -1`\n"+
+			"[ -n $block ] && md5sum -c /sdcard/"+getprop("ro.product.device")+"/nvdata.md5\n"+
+			"[ $? == 0 ] && dd if=/sdcard/"+getprop("ro.product.device")+"/nvdata.img of=$block\n"+
+			"block=`cat /etc/recovery.fstab | cut -d '#' -f 1 | grep /nvram | grep -o '/dev/[^ ]*' | head -1`\n"+
+			"[ -n $block ] && md5sum -c /sdcard/"+getprop("ro.product.device")+"/nvram.md5\n"+
+			"[ $? == 0 ] && dd if=/sdcard/"+getprop("ro.product.device")+"/nvram.bin of=$block\n"+
+		"};;\n"+
+		"destroy){\n"+
+			"[ -d /sdcard/"+getprop("ro.product.device")+" ] && rm -rf /sdcard/"+getprop("ro.product.device")+"\n"+
+			"[ $? == 0 ] && sleep 1\n"+
+		"};;\n"+
+		"*){\n"+
+			"echo -e 'Usage: {backup|restore|destroy}'\n"+
+			"exit 1\n"+
+		"};;\n"+
+	"esac"
+);
+if file_getprop("/tmp/"+getprop("ro.product.device"),"selected")=="1" then
+	if read_file("/sdcard/"+getprop("ro.product.device")+"/nvram.md5")!="" then
+		okay(
+			getconfig("package_name"),
+			"A backup already exist from "+getprop("ro.product.model")+"!",
+			"assets/images/warning"
+		);
+		back(getvalue("0"));
+	endif;
+	if yesno(
+		getconfig("package_name"),
+		"Do you want to create a backup "+getprop("ro.product.model")+"?",
+		"assets/images/question"
+	)=="yes" then
+		if run_program("/sbin/sh","/tmp/"+getprop("ro.bootmode")+".sh","backup")=="0" then
+			run_program("/sbin/cp","-f","/tmp/"+getprop("ro.bootmode")+".log","/sdcard/"+getprop("ro.product.device"));	
+			okay(
+				getconfig("package_name"),
+				"Successfully create backup for "+getprop("ro.product.model")+"!",
+				"assets/images/information"
+			);
+			back(getvalue("0"));
+		else
+			run_program("/sbin/sh","/tmp/"+getprop("ro.bootmode")+".sh","destroy");
+			okay(
+				getconfig("package_name"),
+				"Error creating backup "+getprop("ro.product.model")+"!",
+				"assets/images/cancel"
+			);
+			back(getvalue("0"));
+		endif;
+	else
+		back(getvalue("0"));
+	endif;
+endif;
+if file_getprop("/tmp/"+getprop("ro.product.device"),"selected")=="2" then
+	if read_file("/sdcard/"+getprop("ro.product.device")+"/nvram.md5")!="" then
+		if yesno(
+			getconfig("package_name"),
+			"Do you want to restore the backup "+getprop("ro.product.model")+"?",
+			"assets/images/question"
+		)=="yes" then
+			if run_program("/sbin/sh","/tmp/"+getprop("ro.bootmode")+".sh","restore")=="0" then
+				run_program("/sbin/cp","-f","/tmp/"+getprop("ro.bootmode")+".log","/sdcard/"+getprop("ro.product.device"));	
+				okay(
+					getconfig("package_name"),
+					"Successfully restore backup for "+getprop("ro.product.model")+"!",
+					"assets/images/information"
+				);
+				back(getvalue("0"));
+			else
+				okay(
+					getconfig("package_name"),
+					"Error during restore "+getprop("ro.product.model")+"!",
+					"assets/images/cancel"
+				);
+				back(getvalue("0"));
+			endif;
+		else
+			back(getvalue("0"));
+		endif;
+	else
+		okay(
+			getconfig("package_name"),
+			"A backup isn't exist for "+getprop("ro.product.model")+"!",
+			"assets/images/warning"
+		);
+		back(getvalue("0"));
+	endif;
+endif;
+if file_getprop("/tmp/"+getprop("ro.product.device"),"selected")=="3" then
+	if read_file("/sdcard/"+getprop("ro.product.device")+"/nvram.md5")!="" then
+		if yesno(
+			getconfig("package_name"),
+			"Do you want to remove the backup "+getprop("ro.product.model")+"?",
+			"assets/images/question"
+		)=="yes" then
+			if run_program("/sbin/sh","/tmp/"+getprop("ro.bootmode")+".sh","destroy")=="0" then
+				okay(
+					getconfig("package_name"),
+					"Successfully remove backup "+getprop("ro.product.model")+"!",
+					"assets/images/information"
+				);
+				back(getvalue("0"));
+			else
+				okay(
+					getconfig("package_name"),
+					"Error removing backup "+getprop("ro.product.model")+"!",
+					"assets/images/cancel"
+				);
+				back(getvalue("0"));
+			endif;
+		else
+			back(getvalue("0"));
+		endif;
+	else
+		okay(
+			getconfig("package_name"),
+			"A backup isn't exist for "+getprop("ro.product.model")+"!",
+			"assets/images/warning"
+		);
+		back(getvalue("0"));
+	endif;
+endif;
+if file_getprop("/tmp/"+getprop("ro.product.device"),"selected")=="4" then
+	setconfig("text_next",getconfig("text_finish"));
+	setconfig("icon_next","assets/images/circle");
+	radio(
+		getconfig("package_name"),
+		"Reboot Device ("+getprop("ro.product.model")+")",
+		"assets/images/adb",
+		getprop("ro.product.device"),
+		"","","","hide",
+		"android","System","Android","select",
+		"recovery","Recovery","Recovery","select",
+		"bootloader","Bootloader","Bootloader","select",
+		"poweroff","Poŵer off","Shutdown","select.selected"
+	);
+	ui_print("Target: "+getprop("ro.build.fingerprint"));
+endif;
+ifelse(file_getprop("/tmp/"+getprop("ro.product.device"),"root")=="android",reboot("now"));
+ifelse(file_getprop("/tmp/"+getprop("ro.product.device"),"root")=="recovery",reboot("","recovery"));
+ifelse(file_getprop("/tmp/"+getprop("ro.product.device"),"root")=="bootloader",reboot("","bootloader"));
+ifelse(file_getprop("/tmp/"+getprop("ro.product.device"),"root")=="poweroff",reboot("now","poweroff"));
